@@ -61,7 +61,10 @@ public class FairyController3D : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Star")) Destroy(other.gameObject);
-        if (other.CompareTag("Trap")) Destroy(other.gameObject);
+        if (other.CompareTag("Star"))
+        {
+            Debug.Log("Звезда собрана!");
+            Destroy(other.gameObject);
+        }
     }
 }
