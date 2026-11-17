@@ -12,43 +12,30 @@ public class WitchAI : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.Instance.isGameOver) return; // Блокировка
         if (fairy == null || planetBounds == null) return;
 
-        // 1. Центр шара
         Vector3 planetCenter = planetBounds.GetCenter();
-
-        // 2. Направление к Фее
         Vector3 directionToFairy = (fairy.position - transform.position).normalized;
-
-        // 3. Пытаемся двигаться
         Vector3 newPosition = transform.position + directionToFairy * chaseSpeed * Time.deltaTime;
 
-        // 4. Проверка препятствий (Raycast)
+        Vector3 directionFromCenter = (newPosition - planetCenter).normalized;
+        newPosition = planetCenter + directionFromCenter * planetBounds.walkableRadius;
+
+        // Проверка деревьев (Raycast)
         float checkDistance = 1.2f;
         if (directionToFairy != Vector3.zero)
         {
             Ray ray = new Ray(transform.position, directionToFairy);
             if (Physics.Raycast(ray, out RaycastHit hit, checkDistance))
             {
-                if (hit.collider.CompareTag("Tree"))
-                {
-                    // Если впереди дерево, стоим на месте
-                    newPosition = transform.position;
-                }
+                if (hit.collider.CompareTag("Tree")) newPosition = transform.position;
             }
         }
 
-        // 5. Прилипаем к шару
-        Vector3 directionFromCenter = (newPosition - planetCenter).normalized;
-        newPosition = planetCenter + directionFromCenter * planetBounds.walkableRadius;
-
-        // 6. Применяем позицию
         transform.position = newPosition;
-
-        // 7. Поворот
         transform.up = directionFromCenter;
 
-        // 8. Таймер ловушек
         trapTimer += Time.deltaTime;
         if (trapTimer >= trapCooldown)
         {
@@ -63,9 +50,7 @@ public class WitchAI : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            GameManager.Instance.CaughtByWitch();
-        }
+        if (GameManager.Instance.isGameOver) return;
+        if (other.CompareTag("Player")) GameManager.Instance.CaughtByWitch();
     }
 }
