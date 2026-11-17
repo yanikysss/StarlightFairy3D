@@ -80,12 +80,12 @@ public class FairyController3D : MonoBehaviour
     {
         if (other.CompareTag("Star"))
         {
-            Debug.Log("Звезда собрана!");
+            GameManager.Instance.AddStar();
             Destroy(other.gameObject);
         }
         else if (other.CompareTag("Trap"))
         {
-            Debug.Log("Попали в ловушку!");
+            GameManager.Instance.HitTrap();
             Destroy(other.gameObject);
         }
     }

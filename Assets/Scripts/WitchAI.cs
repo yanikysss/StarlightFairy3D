@@ -65,7 +65,7 @@ public class WitchAI : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Ведьма поймала фею!");
+            GameManager.Instance.CaughtByWitch();
         }
     }
 }
