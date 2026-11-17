@@ -22,15 +22,13 @@ public class FairyController3D : MonoBehaviour
         Vector3 planetCenter = planetBounds.GetCenter();
         Vector3 upDirection = (transform.position - planetCenter).normalized;
 
-        // --- ГЛАВНОЕ ИЗМЕНЕНИЕ: Берем оси от КАМЕРЫ ---
-        // Направление "вперед" и "вправо" относительно экрана
+        // Берем направления от камеры, чтобы управление было относительно экрана
         Vector3 camForward = Camera.main.transform.forward;
         Vector3 camRight = Camera.main.transform.right;
 
-        // Проецируем эти направления на поверхность шара (касательно)
+        // Проецируем на поверхность шара
         Vector3 forwardDirection = Vector3.ProjectOnPlane(camForward, upDirection).normalized;
         Vector3 rightDirection = Vector3.ProjectOnPlane(camRight, upDirection).normalized;
-        // ----------------------------------------------
 
         // Желаемая скорость
         Vector3 targetVelocity = (forwardDirection * moveInput.y + rightDirection * moveInput.x) * moveSpeed;
@@ -64,6 +62,11 @@ public class FairyController3D : MonoBehaviour
         if (other.CompareTag("Star"))
         {
             Debug.Log("Звезда собрана!");
+            Destroy(other.gameObject);
+        }
+        else if (other.CompareTag("Trap"))
+        {
+            Debug.Log("Попали в ловушку!");
             Destroy(other.gameObject);
         }
     }
