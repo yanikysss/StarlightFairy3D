@@ -19,31 +19,50 @@ public class FairyController3D : MonoBehaviour
     {
         if (planetBounds == null) return;
 
+        // 1. Берем центр шара
         Vector3 planetCenter = planetBounds.GetCenter();
         Vector3 upDirection = (transform.position - planetCenter).normalized;
 
-        // Берем направления от камеры, чтобы управление было относительно экрана
+        // 2. Берем направления от камеры
         Vector3 camForward = Camera.main.transform.forward;
         Vector3 camRight = Camera.main.transform.right;
 
-        // Проецируем на поверхность шара
+        // 3. Проецируем на поверхность шара
         Vector3 forwardDirection = Vector3.ProjectOnPlane(camForward, upDirection).normalized;
         Vector3 rightDirection = Vector3.ProjectOnPlane(camRight, upDirection).normalized;
 
-        // Желаемая скорость
+        // 4. Вычисляем желаемую скорость
         Vector3 targetVelocity = (forwardDirection * moveInput.y + rightDirection * moveInput.x) * moveSpeed;
         currentVelocity = Vector3.MoveTowards(currentVelocity, targetVelocity, 40f * Time.deltaTime);
 
-        // Новая позиция
+        // 5. Проверка препятствий (Raycast)
+        float checkDistance = 1.2f; // Дистанция проверки перед феей
+        Vector3 moveDir = currentVelocity.normalized;
+
+        if (moveDir != Vector3.zero)
+        {
+            Ray ray = new Ray(transform.position, moveDir);
+            // Если луч врезается в дерево
+            if (Physics.Raycast(ray, out RaycastHit hit, checkDistance))
+            {
+                if (hit.collider.CompareTag("Tree"))
+                {
+                    // Отменяем движение
+                    currentVelocity = Vector3.zero;
+                }
+            }
+        }
+
+        // 6. Новая позиция
         Vector3 newPosition = transform.position + currentVelocity * Time.deltaTime;
 
-        // Прилипаем к шару
+        // 7. Прилипаем к шару
         Vector3 directionFromCenter = (newPosition - planetCenter).normalized;
         newPosition = planetCenter + directionFromCenter * planetBounds.walkableRadius;
 
         transform.position = newPosition;
 
-        // Поворот феи
+        // 8. Поворот феи
         if (currentVelocity.sqrMagnitude > 0.1f)
         {
             Vector3 lookDir = currentVelocity.normalized;

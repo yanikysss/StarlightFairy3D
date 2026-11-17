@@ -14,38 +14,50 @@ public class WitchAI : MonoBehaviour
     {
         if (fairy == null || planetBounds == null) return;
 
-        // 1. Ведьма смотрит на фею (только по плоскости)
-        Vector3 direction = (fairy.position - transform.position).normalized;
-
-        // 2. Двигаемся в сторону феи
-        Vector3 newPosition = transform.position + direction * chaseSpeed * Time.deltaTime;
-
-        // 3. Прилипаем к поверхности шара (так же, как фея)
+        // 1. Центр шара
         Vector3 planetCenter = planetBounds.GetCenter();
+
+        // 2. Направление к Фее
+        Vector3 directionToFairy = (fairy.position - transform.position).normalized;
+
+        // 3. Пытаемся двигаться
+        Vector3 newPosition = transform.position + directionToFairy * chaseSpeed * Time.deltaTime;
+
+        // 4. Проверка препятствий (Raycast)
+        float checkDistance = 1.2f;
+        if (directionToFairy != Vector3.zero)
+        {
+            Ray ray = new Ray(transform.position, directionToFairy);
+            if (Physics.Raycast(ray, out RaycastHit hit, checkDistance))
+            {
+                if (hit.collider.CompareTag("Tree"))
+                {
+                    // Если впереди дерево, стоим на месте
+                    newPosition = transform.position;
+                }
+            }
+        }
+
+        // 5. Прилипаем к шару
         Vector3 directionFromCenter = (newPosition - planetCenter).normalized;
         newPosition = planetCenter + directionFromCenter * planetBounds.walkableRadius;
 
+        // 6. Применяем позицию
         transform.position = newPosition;
 
-        // 4. Поворачиваем ведьму лицом к центру шара (чтобы она не висела как палка)
+        // 7. Поворот
         transform.up = directionFromCenter;
 
-        // 5. Таймер для ловушек
+        // 8. Таймер ловушек
         trapTimer += Time.deltaTime;
         if (trapTimer >= trapCooldown)
         {
             trapTimer = 0f;
-            PlaceTrap();
-        }
-    }
-
-    void PlaceTrap()
-    {
-        if (trapPrefab != null)
-        {
-            // Опускаем тучу чуть ниже, чтобы она лежала на шаре
-            Vector3 trapPos = transform.position;
-            Instantiate(trapPrefab, trapPos, Quaternion.identity);
+            if (trapPrefab != null)
+            {
+                Vector3 trapPos = planetCenter + directionFromCenter * (planetBounds.walkableRadius - 0.2f);
+                Instantiate(trapPrefab, trapPos, Quaternion.identity);
+            }
         }
     }
 
@@ -53,8 +65,7 @@ public class WitchAI : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Ведьма поймала фею! Игра окончена.");
-            // Позже здесь будет вызов GameManager
+            Debug.Log("Ведьма поймала фею!");
         }
     }
 }
