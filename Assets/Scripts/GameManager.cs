@@ -17,6 +17,9 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI resultText;
     public TextMeshProUGUI scoreText;
 
+    [Header("Мобильное управление")]
+    public GameObject joystick; // Поле для джойстика
+
     private int currentStars = 0;
     private int trapHits = 0;
 
@@ -30,10 +33,12 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // При старте игры показываем меню, прячем результаты, счетчик и джойстик
         if (menuPanel != null) menuPanel.SetActive(true);
         if (resultPanel != null) resultPanel.SetActive(false);
         if (restartButton != null) restartButton.SetActive(false);
-        if (scoreText != null) scoreText.gameObject.SetActive(false); // Скрываем при старте
+        if (scoreText != null) scoreText.gameObject.SetActive(false);
+        if (joystick != null) joystick.SetActive(false); // Скрываем джойстик в меню
 
         Time.timeScale = 0f; // Пауза для меню
         UpdateScoreUI();
@@ -42,7 +47,8 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         if (menuPanel != null) menuPanel.SetActive(false);
-        if (scoreText != null) scoreText.gameObject.SetActive(true); // Включаем при старте игры
+        if (scoreText != null) scoreText.gameObject.SetActive(true);
+        if (joystick != null) joystick.SetActive(true); // Включаем джойстик в игре
         Time.timeScale = 1f;
     }
 
@@ -73,6 +79,7 @@ public class GameManager : MonoBehaviour
         isGameOver = true;
         if (resultPanel != null) resultPanel.SetActive(true);
         if (restartButton != null) restartButton.SetActive(true);
+        if (joystick != null) joystick.SetActive(false); // Прячем джойстик при победе
         if (resultText != null) resultText.text = "ПОБЕДА!\nТы собрала все звезды!";
     }
 
@@ -81,6 +88,7 @@ public class GameManager : MonoBehaviour
         isGameOver = true;
         if (resultPanel != null) resultPanel.SetActive(true);
         if (restartButton != null) restartButton.SetActive(true);
+        if (joystick != null) joystick.SetActive(false); // Прячем джойстик при поражении
         if (resultText != null) resultText.text = $"ПОРАЖЕНИЕ!\n{reason}";
     }
 
